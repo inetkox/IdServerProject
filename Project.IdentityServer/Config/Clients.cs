@@ -25,6 +25,7 @@ namespace Project.IdentityServer.Config
 
                     AllowedGrantTypes = GrantTypes.Code,
                     RedirectUris = new List<string> {"https://localhost:5003/signin-oidc"},
+                    PostLogoutRedirectUris = { "https://localhost:5003/signout-callback-oidc" },
                     AllowedScopes = new List<string>
                     {
                         IdentityServerConstants.StandardScopes.OpenId,
@@ -33,7 +34,7 @@ namespace Project.IdentityServer.Config
                         "weatherApi.read"
                     },
 
-                     RequirePkce = true,
+                    RequirePkce = true,
                     AllowPlainTextPkce = false
                 }
         };
