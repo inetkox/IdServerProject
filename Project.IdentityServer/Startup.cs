@@ -1,6 +1,7 @@
-﻿using IdentityServerHost.Quickstart.UI;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Project.IdentityServer.Config;
+using Project.IdentityServer.Data;
+using static Project.IdentityServer.HostingExtensions;
 
 namespace Project.IdentityServer
 {
@@ -15,55 +16,34 @@ namespace Project.IdentityServer
             return app;
         }
 
-        private static void ConfigureServices(WebApplicationBuilder builder)
+        public static void ConfigureServices(WebApplicationBuilder builder)
         {
-            //var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+            var migrationsAssembly = typeof(Program).Assembly.GetName().Name;
+
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+            {
+                options.UseSqlServer(connectionString, sql => sql.MigrationsAssembly(migrationsAssembly));
+            });
+
+            builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
 
             builder.Services.AddIdServer();
 
             builder.Services.AddControllersWithViews();
         }
 
-        private static void Configure(WebApplication app)
+
+        public static void Configure(WebApplication app)
         {
             if (app.Environment.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
 
-            /*using (var serviceScope = app.Services.CreateScope())
-            { 
-                serviceScope.ServiceProvider.GetRequiredService<PersistedGrantDbContext>().Database.Migrate();
-
-                var context = serviceScope.ServiceProvider.GetRequiredService<ConfigurationDbContext>();
-                context.Database.Migrate();
-                if (!context.Clients.Any())
-                {
-                    foreach (var client in Clients.Get())
-                    {
-                        context.Clients.Add(client.ToEntity());
-                    }
-                    context.SaveChanges();
-                }
-
-                if (!context.IdentityResources.Any())
-                {
-                    foreach (var resource in Resources.GetIdentityResources())
-                    {
-                        context.IdentityResources.Add(resource.ToEntity());
-                    }
-                    context.SaveChanges();
-                }
-
-                if (!context.ApiResources.Any())
-                {
-                    foreach (var resource in Resources.GetApiResources())
-                    {
-                        context.ApiResources.Add(resource.ToEntity());
-                    }
-                    context.SaveChanges();
-                }
-            }*/
+            InitializeDatabase(app);
 
             app.UseStaticFiles();
 
@@ -81,15 +61,10 @@ namespace Project.IdentityServer
     {
         public static IServiceCollection AddIdServer(this IServiceCollection services)
         {
-            var connectionString = @"Data Source=(LocalDb)\MSSQLLocalDB;database=IdentityServer4.Quickstart.EntityFramework-3.0.0;trusted_connection=yes;";
+            var connectionString = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=NewDatabase;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
             var migrationsAssembly = typeof(Program).Assembly.GetName().Name;
             services.AddIdentityServer()
-                .AddInMemoryClients(Clients.Get())
-                .AddInMemoryIdentityResources(Resources.GetIdentityResources())
-                .AddInMemoryApiResources(Resources.GetApiResources())
-                .AddInMemoryApiScopes(Scopes.GetApiScopes())
-                .AddTestUsers(Users.Get())
-                /*.AddTestUsers(TestUsers.Users)
+                .AddAspNetIdentity<IdentityUser>()
                 .AddConfigurationStore(options =>
                 {
                     options.ConfigureDbContext = b => b.UseSqlServer(connectionString, sql => sql.MigrationsAssembly(migrationsAssembly));
@@ -97,7 +72,7 @@ namespace Project.IdentityServer
                  .AddOperationalStore(options =>
                  {
                      options.ConfigureDbContext = b => b.UseSqlServer(connectionString, sql => sql.MigrationsAssembly(migrationsAssembly));
-                 })*/
+                 })
                 .AddDeveloperSigningCredential();
             return services;
         }
