@@ -7,7 +7,7 @@ using Serilog.Sinks.SystemConsole.Themes;
 
 namespace Project.IdentityServer
 {
-    public static class Startup
+    public class Startup
     {
         public static WebApplication InitializeApp(string[] args)
         {
@@ -45,8 +45,6 @@ namespace Project.IdentityServer
 
             builder.Services.AddIdServer();
 
-            builder.Services.AddAuthentication();
-
             builder.Host.UseSerilog((ctx, lc) =>
             {
                 lc.MinimumLevel.Debug()
@@ -74,6 +72,10 @@ namespace Project.IdentityServer
             app.UseStaticFiles();
 
             app.UseRouting();
+
+            app.UseAuthentication();
+
+            app.UseAuthorization();
 
             app.UseIdentityServer();
 

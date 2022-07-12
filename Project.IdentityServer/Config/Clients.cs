@@ -14,6 +14,7 @@ namespace Project.IdentityServer.Config
                 ClientId = "weatherApi",
                 ClientName = "ASP.NET Core Api",
                 AllowedGrantTypes = GrantTypes.ClientCredentials,
+                AllowAccessTokensViaBrowser =true,
                 ClientSecrets = new List<Secret> {new Secret("Mati".Sha256())},
                 AllowedScopes = new List<string> { "weatherApi.read" }
             },
@@ -34,6 +35,7 @@ namespace Project.IdentityServer.Config
                         "weatherApi.read"
                     },
 
+                    AllowAccessTokensViaBrowser =true,
                     RequirePkce = true,
                     AllowPlainTextPkce = false
                 }
