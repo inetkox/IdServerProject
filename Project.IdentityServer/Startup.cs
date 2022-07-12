@@ -1,6 +1,9 @@
-﻿using IdentityServerHost.Quickstart.UI;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Project.IdentityServer.Config;
+using Project.IdentityServer.Database;
+using Serilog;
+using Serilog.Events;
+using Serilog.Sinks.SystemConsole.Themes;
 
 namespace Project.IdentityServer
 {
@@ -12,14 +15,51 @@ namespace Project.IdentityServer
             ConfigureServices(builder);
             var app = builder.Build();
             Configure(app);
+            if (args.Contains("/seed"))
+            {
+                Log.Information("Seeding database...");
+                SeedData.EnsureSeedData(app);
+                Log.Information("Done seeding database. Exiting.");
+            }
             return app;
         }
 
         private static void ConfigureServices(WebApplicationBuilder builder)
         {
-            //var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.Console()
+                .CreateBootstrapLogger();
+
+            Log.Information("Starting up");
+
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+            var migrationsAssembly = typeof(Program).Assembly.GetName().Name;
+
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+            {
+                options.UseSqlServer(connectionString, sql => sql.MigrationsAssembly(migrationsAssembly));
+            });
+
+            builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+                .AddEntityFrameworkStores<ApplicationDbContext>();
 
             builder.Services.AddIdServer();
+
+            builder.Services.AddAuthentication();
+
+            builder.Host.UseSerilog((ctx, lc) =>
+            {
+                lc.MinimumLevel.Debug()
+                  .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+                  .MinimumLevel.Override("Microsoft.Hosting.Lifetime", LogEventLevel.Information)
+                  .MinimumLevel.Override("Microsoft.AspNetCore.Authentication", LogEventLevel.Information)
+                  .MinimumLevel.Override("System", LogEventLevel.Warning)
+                  .WriteTo.Console(
+                    outputTemplate:
+                    "[{Timestamp:HH:mm:ss} {Level}] {SourceContext}{NewLine}{Message:lj}{NewLine}{Exception}{NewLine}",
+                    theme: AnsiConsoleTheme.Code)
+                  .Enrich.FromLogContext();
+            });
 
             builder.Services.AddControllersWithViews();
         }
@@ -30,40 +70,6 @@ namespace Project.IdentityServer
             {
                 app.UseDeveloperExceptionPage();
             }
-
-            /*using (var serviceScope = app.Services.CreateScope())
-            { 
-                serviceScope.ServiceProvider.GetRequiredService<PersistedGrantDbContext>().Database.Migrate();
-
-                var context = serviceScope.ServiceProvider.GetRequiredService<ConfigurationDbContext>();
-                context.Database.Migrate();
-                if (!context.Clients.Any())
-                {
-                    foreach (var client in Clients.Get())
-                    {
-                        context.Clients.Add(client.ToEntity());
-                    }
-                    context.SaveChanges();
-                }
-
-                if (!context.IdentityResources.Any())
-                {
-                    foreach (var resource in Resources.GetIdentityResources())
-                    {
-                        context.IdentityResources.Add(resource.ToEntity());
-                    }
-                    context.SaveChanges();
-                }
-
-                if (!context.ApiResources.Any())
-                {
-                    foreach (var resource in Resources.GetApiResources())
-                    {
-                        context.ApiResources.Add(resource.ToEntity());
-                    }
-                    context.SaveChanges();
-                }
-            }*/
 
             app.UseStaticFiles();
 
@@ -81,15 +87,18 @@ namespace Project.IdentityServer
     {
         public static IServiceCollection AddIdServer(this IServiceCollection services)
         {
-            var connectionString = @"Data Source=(LocalDb)\MSSQLLocalDB;database=IdentityServer4.Quickstart.EntityFramework-3.0.0;trusted_connection=yes;";
+            var connectionString = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=NewDatabaseV3;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False;";
             var migrationsAssembly = typeof(Program).Assembly.GetName().Name;
-            services.AddIdentityServer()
-                .AddInMemoryClients(Clients.Get())
-                .AddInMemoryIdentityResources(Resources.GetIdentityResources())
-                .AddInMemoryApiResources(Resources.GetApiResources())
-                .AddInMemoryApiScopes(Scopes.GetApiScopes())
-                .AddTestUsers(Users.Get())
-                /*.AddTestUsers(TestUsers.Users)
+            services.AddIdentityServer(options =>
+            {
+                options.Events.RaiseErrorEvents = true;
+                options.Events.RaiseInformationEvents = true;
+                options.Events.RaiseFailureEvents = true;
+                options.Events.RaiseSuccessEvents = true;
+
+                options.EmitStaticAudienceClaim = true;
+            })
+                .AddDeveloperSigningCredential()
                 .AddConfigurationStore(options =>
                 {
                     options.ConfigureDbContext = b => b.UseSqlServer(connectionString, sql => sql.MigrationsAssembly(migrationsAssembly));
@@ -97,8 +106,8 @@ namespace Project.IdentityServer
                  .AddOperationalStore(options =>
                  {
                      options.ConfigureDbContext = b => b.UseSqlServer(connectionString, sql => sql.MigrationsAssembly(migrationsAssembly));
-                 })*/
-                .AddDeveloperSigningCredential();
+                 })
+                   .AddAspNetIdentity<IdentityUser>();
             return services;
         }
     }

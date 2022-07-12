@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Project.IdentityServer.Data.Migrations.IdentityServer.ConfigurationDb
+namespace Project.IdentityServer.Migrations
 {
     [DbContext(typeof(ConfigurationDbContext))]
-    [Migration("20220708102047_InitialIdentityServerConfigurationDbMigration")]
-    partial class InitialIdentityServerConfigurationDbMigration
+    [Migration("20220712075542_InitialIdentityServerMigration")]
+    partial class InitialIdentityServerMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
