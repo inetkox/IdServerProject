@@ -14,9 +14,18 @@ namespace Project.IdentityServer.Config
                 ClientId = "weatherApi",
                 ClientName = "ASP.NET Core Api",
                 AllowedGrantTypes = GrantTypes.ClientCredentials,
-                AllowAccessTokensViaBrowser =true,
+                AllowAccessTokensViaBrowser = true,
                 ClientSecrets = new List<Secret> {new Secret("Mati".Sha256())},
-                AllowedScopes = new List<string> { "weatherApi.read" }
+                AllowedScopes = new List<string> {                         
+                        IdentityServerConstants.StandardScopes.OpenId,
+                        IdentityServerConstants.StandardScopes.Profile,
+                        IdentityServerConstants.StandardScopes.OfflineAccess,
+                        "role",
+                        "weatherApi.read" },
+                AllowOfflineAccess = true,
+                RequireConsent = true,
+                AlwaysIncludeUserClaimsInIdToken = true,
+
             },
             new Client
                 {
@@ -35,9 +44,12 @@ namespace Project.IdentityServer.Config
                         "weatherApi.read"
                     },
 
-                    AllowAccessTokensViaBrowser =true,
+                    AllowOfflineAccess = true,
+                    AllowAccessTokensViaBrowser = true,
                     RequirePkce = true,
-                    AllowPlainTextPkce = false
+                    AllowPlainTextPkce = false,
+                    RequireConsent = true,
+                    AlwaysIncludeUserClaimsInIdToken = true
                 }
         };
         }

@@ -89,7 +89,7 @@ namespace Project.IdentityServer
     {
         public static IServiceCollection AddIdServer(this IServiceCollection services)
         {
-            var connectionString = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=NewDatabaseV3;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False;";
+            var connectionString = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=NewDatabaseV8;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False;";
             var migrationsAssembly = typeof(Program).Assembly.GetName().Name;
             services.AddIdentityServer(options =>
             {

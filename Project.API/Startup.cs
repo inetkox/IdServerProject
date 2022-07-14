@@ -2,7 +2,7 @@
 
 namespace Project.API
 {
-    public static class Startup
+    public class Startup
     {
         public static WebApplication InitializeApp(string[] args)
         {
