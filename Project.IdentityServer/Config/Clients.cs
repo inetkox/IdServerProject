@@ -43,7 +43,7 @@ namespace Project.IdentityServer.Config
                         "role",
                         "weatherApi.read"
                     },
-
+                    
                     AllowOfflineAccess = true,
                     AllowAccessTokensViaBrowser = true,
                     RequirePkce = true,

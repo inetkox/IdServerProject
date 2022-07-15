@@ -24,6 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Project.Client\Project.Client.csproj" />
     <ProjectReference Include="..\Project.IdentityServer\Project.IdentityServer.csproj" />
   </ItemGroup>
 

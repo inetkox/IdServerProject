@@ -1,9 +1,6 @@
-﻿using IdentityModel.Client;
-using IdentityServer4;
-using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using System.Security.Claims;
 
 namespace Project.Client
 {
@@ -31,13 +28,12 @@ namespace Project.Client
                 options.Authority = "https://localhost:5001";
                 options.ClientId = "mvc";
                 options.ClientSecret = "Mati";
+                options.CallbackPath = "/signin-oidc";
 
                 options.ResponseType = OpenIdConnectResponseType.Code;
                 options.UsePkce = true;
-                options.ResponseMode = OpenIdConnectResponseMode.FormPost;
-                options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.ResponseMode = OpenIdConnectResponseMode.Query;
 
-                options.Scope.Clear();
                 options.Scope.Add("offline_access");
                 options.Scope.Add("weatherApi.read");
                 options.GetClaimsFromUserInfoEndpoint = true;
