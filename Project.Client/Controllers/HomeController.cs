@@ -18,7 +18,7 @@ namespace Project.Client.Controllers
         {
             _logger = logger;
         }
-
+      
         public async Task<IActionResult> Index()
         {          
             return View();
@@ -26,7 +26,7 @@ namespace Project.Client.Controllers
 
         public async Task<IActionResult> Home()
         {
-            var client = new HttpClient();
+            /*var client = new HttpClient();
             var disco = await client.GetDiscoveryDocumentAsync("https://localhost:5001");
             if (!String.IsNullOrEmpty(disco.Error))
             {
@@ -65,9 +65,9 @@ namespace Project.Client.Controllers
             var isActive = response2.IsActive;
             var claims = response2.Claims;
 
-            var accessToken = await HttpContext.GetTokenAsync(IdentityServerConstants.TokenTypes.AccessToken);
+            var accessToken = await HttpContext.GetTokenAsync(IdentityServerConstants.TokenTypes.AccessToken);*/
 
-            var response3 = await client.GetUserInfoAsync(new UserInfoRequest
+            /*var response3 = await client.GetUserInfoAsync(new UserInfoRequest
             {
                 Address = disco.UserInfoEndpoint,
                 Token = accessToken
@@ -75,7 +75,7 @@ namespace Project.Client.Controllers
 
             if (response3.IsError) throw new Exception(response3.Error);
 
-            var claims2 = response3.Claims;
+            var claims2 = response3.Claims;*/
             return View();
         }
 

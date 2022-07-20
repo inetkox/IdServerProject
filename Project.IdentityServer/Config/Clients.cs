@@ -40,6 +40,7 @@ namespace Project.IdentityServer.Config
                     {
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
+                        IdentityServerConstants.StandardScopes.OfflineAccess,
                         "role",
                         "weatherApi.read"
                     },
